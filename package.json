@@ -1,7 +1,7 @@
 {
   "name": "fotostory",
   "version": "0.1.0",
-  "homepage": "https://sojein.github.io/fotostory/",
+  "homepage": "https://sojein.github.io",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -29,7 +29,7 @@
   },
   "scripts": {
     "start": "vite",
-    "predeploy": "npm run build",
+    "predeploy": "vite build",
     "deploy": "gh-pages -d dist",
     "build": "vite build"
   },
