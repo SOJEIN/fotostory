@@ -1,0 +1,44 @@
+/* App.css */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #fff; /* Fondo negro */
+}
+
+.App {
+  text-align: center;
+  /* Si no estás usando App-header o App-logo, puedes eliminar estos estilos */
+}
+
+/* Elimina o comenta los estilos que no necesitas */
+.App-header {
+  /* background-color: #282c34; */
+  /* min-height: 100vh; */
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* align-items: center; */
+  /* justify-content: center; */
+  /* font-size: calc(10px + 2vmin); */
+  /* color: white; */
+}
+
+.App-logo {
+  /* height: 40vmin; */
+  /* pointer-events: none; */
+}
+
+.App-link {
+  /* color: #61dafb; */
+}
+
+/* Si no necesitas la animación, elimínala */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
