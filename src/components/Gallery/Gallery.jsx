@@ -1,121 +1,135 @@
-import React from "react";
-import { styled, useTheme } from "@mui/material/styles";
-import {
-  AppBar,
-  IconButtonCustom,
-  DrawerHeader,
-  Drawer,
-  ContainerMain,
-} from "./styles/Dashboard.styles";
-import { Toolbar, ListItemIcon, ListItemText } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import Divider from "@mui/material/Divider";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import List from "@mui/material/List";
-import { useNavigate } from "react-router-dom";
-import CssBaseline from "@mui/material/CssBaseline";
-
-// Importación de los íconos
+import React, { useRef } from "react";
+import { Typography, Box, IconButton, Fab } from "@mui/material";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import SendIcon from "@mui/icons-material/Send";
+import AddIcon from "@mui/icons-material/Add";
 
-function Dashboard() {
-  const navigate = useNavigate();
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+import {
+  Actions,
+  AvatarStyled,
+  CommentLink,
+  ContainerMain,
+  Header,
+  Likes,
+  UserInfo,
+} from "./styles/Gallery.styles";
+import useUploadFiles from "./hooks/useUploadFiles";
+import { styled } from "@mui/material/styles";
 
-  // Ajustar la lista de ítems para incluir texto, rutas y sus respectivos íconos
-  const items = [
-    { text: "Galeria", path: "/gallery", icon: <FavoriteBorderIcon /> },
-    { text: "Enviar", path: "/send", icon: <SendIcon /> },
-  ];
+const Gallery = () => {
+  const fileInputRef = useRef(null);
 
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const handleAddPhotoClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+  const { images, error, isLoading, uploadFile } = useUploadFiles();
+
+  const VisuallyHiddenInput = styled("input")({
+    display: "none",
+  });
+
+  const GalleryGrid = styled("div")({
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+    gap: "16px",
+    padding: "16px",
+  });
+
+  const GalleryItem = styled("div")({
+    position: "relative",
+    overflow: "hidden",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  });
+
+  const StyledImage = styled("img")({
+    width: "100%",
+    height: "auto",
+    display: "block",
+  });
 
   return (
     <ContainerMain>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButtonCustom
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            open={open}
-          >
-            <MenuIcon />
-            <Typography variant="h6" noWrap component="div">
-              Menu
+      <Header>
+        <UserInfo>
+          <AvatarStyled alt="User Name" src="path-to-avatar.jpg" />
+          <div>
+            <Typography variant="subtitle1" fontWeight="bold">
+              mayitho_0212
             </Typography>
-          </IconButtonCustom>
-        </Toolbar>
-      </AppBar>
+            <Typography variant="caption" color="textSecondary">
+              1 sem
+            </Typography>
+          </div>
+        </UserInfo>
+        <IconButton>
+          <MoreHorizIcon />
+        </IconButton>
+      </Header>
 
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {items.map(({ text, path, icon }, index) => (
-            <ListItem key={index} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                onClick={() => navigate(path)}
-                sx={[
-                  {
-                    minHeight: 48,
-                    px: 2.5,
-                  },
-                  open
-                    ? {
-                        justifyContent: "initial",
-                      }
-                    : {
-                        justifyContent: "center",
-                      },
-                ]}
+      {/* Bloque para mostrar las imágenes en estilo de galería */}
+      <GalleryGrid>
+        {images.map((url, index) => (
+          <GalleryItem key={index}>
+            <StyledImage src={url} alt={`Imagen ${index + 1}`} />
+            <Actions>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: "8px 0",
+                }}
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  {icon}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-      </Drawer>
+                <IconButton>
+                  <FavoriteBorderIcon />
+                </IconButton>
+                <IconButton>
+                  <ChatBubbleOutlineIcon />
+                </IconButton>
+                <IconButton>
+                  <SendIcon />
+                </IconButton>
+              </Box>
+            </Actions>
+          </GalleryItem>
+        ))}
+      </GalleryGrid>
 
-      {/* Agregar aquí el espacio para el contenido principal */}
-      <div style={{ marginTop: theme.mixins.toolbar.minHeight }}>
-        {/* Aquí se renderizaría el contenido principal de la página */}
-      </div>
+      <Likes>18 Me gusta</Likes>
+      <CommentLink variant="body2">Ver 1 comentario</CommentLink>
+      <Typography variant="body2" color="textSecondary">
+        Agrega un comentario...
+      </Typography>
+
+      {/* Input oculto para subir archivos */}
+      <VisuallyHiddenInput
+        type="file"
+        ref={fileInputRef}
+        onChange={(event) => uploadFile({ event })}
+        multiple
+        accept="image/*"
+      />
+
+      {/* Botón flotante para agregar imágenes */}
+      <Fab
+        color="primary"
+        aria-label="add"
+        sx={{ position: "fixed", bottom: 16, right: 16 }}
+        onClick={handleAddPhotoClick}
+      >
+        <AddIcon />
+      </Fab>
+
+      {/* Mostrar el estado de carga y errores si existen */}
+      {isLoading && <Typography>Subiendo imagen...</Typography>}
+      {error && <Typography color="error">Error al subir la imagen</Typography>}
     </ContainerMain>
   );
-}
+};
 
-export default Dashboard;
+export default Gallery;

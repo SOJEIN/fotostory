@@ -1,6 +1,7 @@
 {
   "name": "fotostory",
   "version": "0.1.0",
+  "homepage": "https://sojein.github.io/fotostory/",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -50,7 +51,6 @@
     ]
   },
   "devDependencies": {
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "gh-pages": "^6.1.1"
+    "eslint-plugin-react-hooks": "^4.6.2"
   }
 }

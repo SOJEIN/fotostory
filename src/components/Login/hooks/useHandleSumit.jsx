@@ -23,7 +23,7 @@ const useLogin = () => {
         );
         setUser(DataUser.user);
         toast.success("Sesión iniciada correctamente");
-        navigate("/galeria");
+        navigate("/gallery");
       } catch (error) {
         handleAuthError(error);
       }
@@ -37,7 +37,7 @@ const useLogin = () => {
         const result = await signInWithPopup(auth, provider);
         setUser(result.user);
         toast.success("Sesión iniciada con Google correctamente");
-        navigate("/galeria");
+        navigate("/gallery");
       } catch (error) {
         handleAuthError(error);
       }
