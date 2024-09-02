@@ -1,7 +1,7 @@
 {
   "name": "fotostory",
   "version": "0.1.0",
-  "homepage": "https://sojein.github.io",
+  "homepage": "https://sojein.github.io/fotostory/",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -22,7 +22,6 @@
     "react-hook-form": "^7.53.0",
     "react-router-dom": "^6.26.1",
     "react-toastify": "^10.0.5",
-    "uuid": "^10.0.0",
     "vite": "^5.4.2",
     "web-vitals": "^2.1.4",
     "yup": "^1.4.0",

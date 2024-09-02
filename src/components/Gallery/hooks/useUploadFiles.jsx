@@ -1,7 +1,7 @@
 import { uploadBytes, getDownloadURL, ref } from "firebase/storage";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { storage, db } from "../../../service/firebaseConfig";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
@@ -20,7 +20,6 @@ const useUploadFiles = () => {
         console.error("Error fetching images from Firestore:", error);
       }
     };
-
     fetchImages();
   }, []);
 
@@ -33,7 +32,7 @@ const useUploadFiles = () => {
       try {
         const ui = uuidv4();
         const storageRef = ref(storage, `images/${ui + "_" + file.name}`);
-        const uploadTask = await uploadBytes(storageRef, file);
+        await uploadBytes(storageRef, file);
         const urlFile = await getDownloadURL(storageRef);
         await addDoc(collection(db, "images"), {
           url: urlFile,

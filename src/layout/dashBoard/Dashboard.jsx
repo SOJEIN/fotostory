@@ -1,5 +1,5 @@
 import React from "react";
-import { styled, useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import {
   AppBar,
   IconButtonCustom,
@@ -19,18 +19,33 @@ import ListItemButton from "@mui/material/ListItemButton";
 import List from "@mui/material/List";
 import { useNavigate } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
+import useGlobalStore from "../../store/store";
+import { getAuth, signOut } from "firebase/auth";
 
 function Dashboard() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const items = [{ text: "Galeria", path: "/gallery" }];
+  const a = useGlobalStore((state) => state.setUser);
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
 
   const handleDrawerOpen = () => {
     setOpen(true);
+  };
+
+  const handleLogout = () => {
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        a(null);
+      })
+      .catch((error) => {
+        console.error("Error signing out:", error);
+      });
   };
 
   return (
@@ -87,14 +102,30 @@ function Dashboard() {
               </ListItemButton>
             </ListItem>
           ))}
+          <ListItem key="logout" disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              onClick={handleLogout}
+              sx={[
+                {
+                  minHeight: 48,
+                  px: 2.5,
+                },
+                open
+                  ? {
+                      justifyContent: "initial",
+                    }
+                  : {
+                      justifyContent: "center",
+                    },
+              ]}
+            >
+              <Typography variant="button">Cerrar Sesión</Typography>
+            </ListItemButton>
+          </ListItem>
         </List>
         <Divider />
       </Drawer>
-
-      {/* Agregar aquí el espacio para el contenido principal */}
-      <div style={{ marginTop: theme.mixins.toolbar.minHeight }}>
-        {/* Aquí se renderizaría el contenido principal de la página */}
-      </div>
+      <div style={{ marginTop: theme.mixins.toolbar.minHeight }}></div>
     </ContainerMain>
   );
 }
