@@ -1,135 +1,78 @@
-import React, { useRef } from "react";
-import { Typography, Box, IconButton, Fab } from "@mui/material";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
-import SendIcon from "@mui/icons-material/Send";
-import AddIcon from "@mui/icons-material/Add";
+import { uploadBytesResumable, getDownloadURL, ref } from "firebase/storage";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import { storage, db } from "../../../service/firebaseConfig";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
-import {
-  Actions,
-  AvatarStyled,
-  CommentLink,
-  ContainerMain,
-  Header,
-  Likes,
-  UserInfo,
-} from "./styles/Gallery.styles";
-import useUploadFiles from "./hooks/useUploadFiles";
-import { styled } from "@mui/material/styles";
+const useUploadFiles = () => {
+  const queryClient = useQueryClient();
+  const [images, setImages] = useState([]);
 
-const Gallery = () => {
-  const fileInputRef = useRef(null);
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "images"));
+        const imageList = querySnapshot.docs.map((doc) => doc.data().url);
+        setImages(imageList);
+      } catch (error) {
+        console.error("Error fetching images from Firestore:", error);
+      }
+    };
 
-  const handleAddPhotoClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fetchImages();
+  }, []);
+
+  const mutation = useMutation({
+    mutationFn: async ({ event }) => {
+      console.log("Mutation function started");
+      console.log("Storage:", storage);
+      console.log("Ref function:", ref);
+
+      const file = event.target.files[0];
+      if (!file) {
+        throw new Error("No file selected");
+      }
+
+      console.log("File selected:", file);
+
+      try {
+        console.log("Storage object:", storage);
+
+        const storageRef = ref(storage, `images/${file.name}`);
+        console.log("Storage reference created:", storageRef);
+
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        console.log("uploadTask", uploadTask);
+        const urlFile = await getDownloadURL(uploadTask.snapshot.ref);
+
+        console.log("File uploaded successfully, URL:", urlFile);
+
+        await addDoc(collection(db, "images"), {
+          url: urlFile,
+          createdAt: new Date(),
+        });
+
+        setImages((prevImages) => [...prevImages, urlFile]);
+        toast.success("Imagen subida y URL guardada en Firestore");
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        toast.error("Error al subir la imagen");
+        throw error;
+      }
+    },
+    onError: (error) => {
+      console.error("Upload failed:", error);
+      toast.error("Error durante la subida de la imagen.");
+    },
+  });
+
+  return {
+    images,
+    uploadFile: mutation.mutate,
+    isLoading: mutation.isLoading,
+    error: mutation.error,
   };
-
-  const { images, error, isLoading, uploadFile } = useUploadFiles();
-
-  const VisuallyHiddenInput = styled("input")({
-    display: "none",
-  });
-
-  const GalleryGrid = styled("div")({
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-    gap: "16px",
-    padding: "16px",
-  });
-
-  const GalleryItem = styled("div")({
-    position: "relative",
-    overflow: "hidden",
-    borderRadius: "8px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  });
-
-  const StyledImage = styled("img")({
-    width: "100%",
-    height: "auto",
-    display: "block",
-  });
-
-  return (
-    <ContainerMain>
-      <Header>
-        <UserInfo>
-          <AvatarStyled alt="User Name" src="path-to-avatar.jpg" />
-          <div>
-            <Typography variant="subtitle1" fontWeight="bold">
-              mayitho_0212
-            </Typography>
-            <Typography variant="caption" color="textSecondary">
-              1 sem
-            </Typography>
-          </div>
-        </UserInfo>
-        <IconButton>
-          <MoreHorizIcon />
-        </IconButton>
-      </Header>
-
-      {/* Bloque para mostrar las imágenes en estilo de galería */}
-      <GalleryGrid>
-        {images.map((url, index) => (
-          <GalleryItem key={index}>
-            <StyledImage src={url} alt={`Imagen ${index + 1}`} />
-            <Actions>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  padding: "8px 0",
-                }}
-              >
-                <IconButton>
-                  <FavoriteBorderIcon />
-                </IconButton>
-                <IconButton>
-                  <ChatBubbleOutlineIcon />
-                </IconButton>
-                <IconButton>
-                  <SendIcon />
-                </IconButton>
-              </Box>
-            </Actions>
-          </GalleryItem>
-        ))}
-      </GalleryGrid>
-
-      <Likes>18 Me gusta</Likes>
-      <CommentLink variant="body2">Ver 1 comentario</CommentLink>
-      <Typography variant="body2" color="textSecondary">
-        Agrega un comentario...
-      </Typography>
-
-      {/* Input oculto para subir archivos */}
-      <VisuallyHiddenInput
-        type="file"
-        ref={fileInputRef}
-        onChange={(event) => uploadFile({ event })}
-        multiple
-        accept="image/*"
-      />
-
-      {/* Botón flotante para agregar imágenes */}
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: "fixed", bottom: 16, right: 16 }}
-        onClick={handleAddPhotoClick}
-      >
-        <AddIcon />
-      </Fab>
-
-      {/* Mostrar el estado de carga y errores si existen */}
-      {isLoading && <Typography>Subiendo imagen...</Typography>}
-      {error && <Typography color="error">Error al subir la imagen</Typography>}
-    </ContainerMain>
-  );
 };
 
-export default Gallery;
+export default useUploadFiles;
